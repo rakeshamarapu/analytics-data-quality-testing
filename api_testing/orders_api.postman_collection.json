@@ -1,0 +1,436 @@
+{
+  "info": {
+    "name": "Analytics Orders API tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "TC-19 Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Response time under 1000 ms\", function () { pm.expect(pm.response.responseTime).to.be.below(1000); });",
+              "pm.test(\"Status field is ok\", function () { pm.expect(pm.response.json().status).to.eql(\"ok\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-20 List orders (default)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/orders",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "orders"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Returns 10 orders\", function () { pm.expect(pm.response.json().orders.length).to.eql(10); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-21 Limit 1 (boundary)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/orders?limit=1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "orders"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Returns 1 order\", function () { pm.expect(pm.response.json().orders.length).to.eql(1); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-21 Limit 0 (invalid)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/orders?limit=0",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "orders"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "0"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
+              "pm.test(\"Body has an error message\", function () { pm.expect(pm.response.json()).to.have.property(\"error\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-21 Limit 101 (invalid)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/orders?limit=101",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "orders"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "101"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
+              "pm.test(\"Body has an error message\", function () { pm.expect(pm.response.json()).to.have.property(\"error\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-21 Limit abc (invalid)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/orders?limit=abc",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "orders"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "abc"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
+              "pm.test(\"Body has an error message\", function () { pm.expect(pm.response.json()).to.have.property(\"error\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-23 Order 1",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/orders/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "orders",
+            "1"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"order_total equals quantity x unit_price\", function () { const o = pm.response.json(); pm.expect(o.order_total).to.be.closeTo(o.quantity * o.unit_price, 0.01); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-24 Order not found",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/orders/99999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "orders",
+            "99999"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
+              "pm.test(\"Body has an error message\", function () { pm.expect(pm.response.json()).to.have.property(\"error\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-24 Order id not a number",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/orders/abc",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "orders",
+            "abc"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
+              "pm.test(\"Body has an error message\", function () { pm.expect(pm.response.json()).to.have.property(\"error\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-25 Rejected order not exposed",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/orders/31",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "orders",
+            "31"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
+              "pm.test(\"Body has an error message\", function () { pm.expect(pm.response.json()).to.have.property(\"error\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-26 Customer 1",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/customers/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "customers",
+            "1"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Country is standardized\", function () { pm.expect([\"India\",\"USA\",\"UK\",\"Germany\",\"Unknown\"]).to.include(pm.response.json().country); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-26 Customer not found",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/customers/9999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "customers",
+            "9999"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
+              "pm.test(\"Body has an error message\", function () { pm.expect(pm.response.json()).to.have.property(\"error\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-27 Summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/summary",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "summary"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Summary has expected fields\", function () { pm.expect(pm.response.json()).to.have.all.keys(\"total_orders\",\"total_revenue\",\"rejected_orders\"); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-28 POST not allowed",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/orders",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "orders"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 405\", function () { pm.response.to.have.status(405); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
